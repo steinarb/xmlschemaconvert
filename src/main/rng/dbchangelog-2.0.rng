@@ -1810,7 +1810,9 @@
     <rng:ref name="column"/>
    </rng:oneOrMore>
    <rng:optional>
-    <rng:element name="where"/>
+    <rng:element name="where">
+     <rng:empty/>
+    </rng:element>
    </rng:optional>
 
    <rng:ref name="tableNameAttribute"/>
@@ -1826,7 +1828,9 @@
 
 
    <rng:optional>
-    <rng:element name="where"/>
+    <rng:element name="where">
+     <rng:empty/>
+    </rng:element>
    </rng:optional>
 
    <rng:ref name="tableNameAttribute"/>
@@ -2022,7 +2026,7 @@
  </rng:start>
  <rng:define name="stop">
   <rng:element name="stop">
-
+   <rng:empty/>
   </rng:element>
  </rng:define>
 
