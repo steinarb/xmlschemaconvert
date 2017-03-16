@@ -1811,7 +1811,7 @@
    </rng:oneOrMore>
    <rng:optional>
     <rng:element name="where">
-     <rng:empty/>
+     <rng:text/>
     </rng:element>
    </rng:optional>
 
@@ -1829,7 +1829,7 @@
 
    <rng:optional>
     <rng:element name="where">
-     <rng:empty/>
+     <rng:text/>
     </rng:element>
    </rng:optional>
 
