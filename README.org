@@ -1,0 +1,10 @@
+* A maven file to convert XML schemas to RNC
+
+This is a maven project that uses the trang-maven-plugin to convert Relax-NG XML files to Relax-NG Compact notation (RNC) files.
+
+Usage is:
+#+BEGIN_EXAMPLE
+  mvn clean install
+#+END_EXAMPLE
+
+After maven has run its course, the rnc schema(s) can be found in target/trang.
