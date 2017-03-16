@@ -1,0 +1,2442 @@
+<rng:grammar xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ns="http://www.liquibase.org/xml/ns/dbchangelog" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+ <rng:define name="propertyExpression">
+  <rng:data type="string">
+   <rng:param name="pattern">$\{[\w\.]+\}</rng:param>
+  </rng:data>
+ </rng:define>
+
+ <rng:define name="booleanExp">
+  <a:documentation>
+
+   <xsd:documentation>Extension to standard XSD boolean type to allow ${} parameters</xsd:documentation>
+
+  </a:documentation>
+  <rng:choice>
+
+   <rng:data type="boolean"/>
+
+
+   <rng:ref name="propertyExpression"/>
+
+  </rng:choice>
+ </rng:define>
+
+ <rng:define name="integerExp">
+  <a:documentation>
+
+   <xsd:documentation>Extension to standard XSD integer type to allow ${} parameters</xsd:documentation>
+
+  </a:documentation>
+  <rng:choice>
+
+   <rng:data type="integer"/>
+
+
+   <rng:ref name="propertyExpression"/>
+
+  </rng:choice>
+ </rng:define>
+
+ <rng:define name="onChangeSetPreconditionErrorOrFail">
+  <rng:choice>
+   <rng:value>HALT</rng:value>
+   <rng:value>WARN</rng:value>
+   <rng:value>CONTINUE</rng:value>
+   <rng:value>MARK_RAN</rng:value>
+  </rng:choice>
+ </rng:define>
+
+ <rng:define name="onChangeLogPreconditionErrorOrFail">
+  <rng:choice>
+   <rng:value>HALT</rng:value>
+   <rng:value>WARN</rng:value>
+  </rng:choice>
+ </rng:define>
+
+ <rng:define name="onChangeLogPreconditionOnSqlOutput">
+  <rng:choice>
+   <rng:value>TEST</rng:value>
+   <rng:value>FAIL</rng:value>
+   <rng:value>IGNORE</rng:value>
+  </rng:choice>
+ </rng:define>
+
+ <rng:define name="onChangeSetValidationFail">
+  <rng:choice>
+   <rng:value>HALT</rng:value>
+   <rng:value>MARK_RAN</rng:value>
+  </rng:choice>
+ </rng:define>
+
+ <!-- This is the main (root) part of the xsd -->
+ <rng:start combine="choice">
+  <rng:ref name="databaseChangeLog"/>
+ </rng:start>
+ <rng:define name="databaseChangeLog">
+  <rng:element name="databaseChangeLog">
+
+
+   <rng:zeroOrMore>
+    <rng:element name="property">
+
+     <rng:optional>
+      <rng:attribute name="file">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="name">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="value">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="dbms">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="context">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+
+    </rng:element>
+   </rng:zeroOrMore>
+
+   <rng:optional>
+    <rng:element name="preConditions">
+
+     <rng:choice>
+      <rng:oneOrMore>
+       <rng:ref name="PreConditionChildren"/>
+      </rng:oneOrMore>
+     </rng:choice>
+     <rng:optional>
+      <rng:attribute name="onFailMessage">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="onErrorMessage">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="onFail">
+       <rng:ref name="onChangeLogPreconditionErrorOrFail"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="onError">
+       <rng:ref name="onChangeLogPreconditionErrorOrFail"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="onSqlOutput">
+       <rng:ref name="onChangeLogPreconditionOnSqlOutput"/>
+      </rng:attribute>
+     </rng:optional>
+
+    </rng:element>
+   </rng:optional>
+
+   <rng:zeroOrMore>
+    <rng:choice>
+     <rng:zeroOrMore>
+      <rng:element name="changeSet">
+
+
+       <rng:zeroOrMore>
+        <rng:element name="validCheckSum">
+
+
+	 <rng:optional>
+          <rng:ref name="comment"/>
+         </rng:optional>
+
+
+	</rng:element>
+       </rng:zeroOrMore>
+       <rng:optional>
+        <rng:element name="preConditions">
+         <a:documentation>
+
+          <xsd:documentation>onChangeLogPreconditionOnSqlOutput determines what should happen when evaluating this precondition in updateSQL mode.  TEST: Run precondition, FAIL: Fail precondition, IGNORE: Skip precondition check [DEFAULT]</xsd:documentation>
+
+         </a:documentation>
+
+	 <rng:choice>
+	  <rng:oneOrMore>
+           <rng:ref name="PreConditionChildren"/>
+          </rng:oneOrMore>
+	 </rng:choice>
+	 <rng:optional>
+          <rng:attribute name="onFailMessage">
+           <rng:data type="string"/>
+          </rng:attribute>
+         </rng:optional>
+	 <rng:optional>
+          <rng:attribute name="onErrorMessage">
+           <rng:data type="string"/>
+          </rng:attribute>
+         </rng:optional>
+	 <rng:optional>
+          <rng:attribute name="onFail">
+           <rng:ref name="onChangeSetPreconditionErrorOrFail"/>
+          </rng:attribute>
+         </rng:optional>
+	 <rng:optional>
+          <rng:attribute name="onError">
+           <rng:ref name="onChangeSetPreconditionErrorOrFail"/>
+          </rng:attribute>
+         </rng:optional>
+	 <rng:optional>
+          <rng:attribute name="onSqlOutput">
+           <rng:ref name="onChangeLogPreconditionOnSqlOutput"/>
+          </rng:attribute>
+         </rng:optional>
+
+	</rng:element>
+       </rng:optional>
+       <rng:choice>
+	<rng:ref name="tagDatabase"/>
+	<rng:zeroOrMore>
+         <rng:ref name="changeSetChildren"/>
+        </rng:zeroOrMore>
+       </rng:choice>
+
+       <rng:zeroOrMore>
+        <rng:element name="modifySql">
+
+	 <rng:choice>
+	  <rng:oneOrMore>
+           <rng:ref name="modifySqlChildren"/>
+          </rng:oneOrMore>
+	 </rng:choice>
+	 <rng:optional>
+          <rng:attribute name="dbms">
+           <rng:data type="string"/>
+          </rng:attribute>
+         </rng:optional>
+	 <rng:optional>
+          <rng:attribute name="context">
+           <rng:data type="string"/>
+          </rng:attribute>
+         </rng:optional>
+	 <rng:optional>
+          <rng:attribute name="applyToRollback">
+           <rng:ref name="booleanExp"/>
+          </rng:attribute>
+         </rng:optional>
+
+	</rng:element>
+       </rng:zeroOrMore>
+
+
+       <rng:ref name="changeSetAttributes"/>
+
+      </rng:element>
+     </rng:zeroOrMore>
+
+     <!-- include -->
+     <rng:zeroOrMore>
+      <rng:element name="include">
+
+       <rng:attribute name="file">
+        <rng:data type="string"/>
+       </rng:attribute>
+       <rng:optional>
+        <rng:attribute name="relativeToChangelogFile">
+         <rng:ref name="booleanExp"/>
+        </rng:attribute>
+       </rng:optional>
+
+      </rng:element>
+     </rng:zeroOrMore>
+     <rng:zeroOrMore>
+      <rng:element name="includeAll">
+
+       <rng:attribute name="path">
+        <rng:data type="string"/>
+       </rng:attribute>
+       <rng:optional>
+        <rng:attribute name="relativeToChangelogFile">
+         <rng:ref name="booleanExp"/>
+        </rng:attribute>
+       </rng:optional>
+
+      </rng:element>
+     </rng:zeroOrMore>
+    </rng:choice>
+   </rng:zeroOrMore>
+
+   <rng:ref name="changeLogAttributes"/>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:define name="modifySqlChildren">
+  <rng:choice>
+   <rng:zeroOrMore>
+    <rng:element name="replace">
+
+     <rng:attribute name="replace">
+      <rng:data type="string"/>
+     </rng:attribute>
+     <rng:attribute name="with">
+      <rng:data type="string"/>
+     </rng:attribute>
+
+    </rng:element>
+   </rng:zeroOrMore>
+   <rng:zeroOrMore>
+    <rng:element name="regExpReplace">
+
+     <rng:attribute name="replace">
+      <rng:data type="string"/>
+     </rng:attribute>
+     <rng:attribute name="with">
+      <rng:data type="string"/>
+     </rng:attribute>
+
+    </rng:element>
+   </rng:zeroOrMore>
+   <rng:zeroOrMore>
+    <rng:element name="prepend">
+
+     <rng:attribute name="value">
+      <rng:data type="string"/>
+     </rng:attribute>
+
+    </rng:element>
+   </rng:zeroOrMore>
+   <rng:zeroOrMore>
+    <rng:element name="append">
+
+     <rng:attribute name="value">
+      <rng:data type="string"/>
+     </rng:attribute>
+
+    </rng:element>
+   </rng:zeroOrMore>
+  </rng:choice>
+ </rng:define>
+
+ <!-- Attributes for DatabaseInfo -->
+ <rng:define name="DatabaseInfoAttributes">
+  <rng:optional>
+   <rng:attribute name="type">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="version">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="username">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="password">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="port">
+    <rng:ref name="integerExp"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="host">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="schemaName">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="driverName">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+ </rng:define>
+
+ <!-- Attributes for changeSet -->
+ <rng:define name="changeLogAttributes">
+  <rng:optional>
+   <rng:attribute name="logicalFilePath">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+ </rng:define>
+
+ <!-- Attributes for changeSet -->
+ <rng:define name="changeSetAttributes">
+  <rng:attribute name="id">
+   <rng:data type="string"/>
+  </rng:attribute>
+  <rng:attribute name="author">
+   <rng:data type="string"/>
+  </rng:attribute>
+  <rng:optional>
+   <rng:attribute name="context">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="dbms">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="runOnChange">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="runAlways">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="failOnError">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="onValidationFail">
+    <rng:ref name="onChangeSetValidationFail"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute xmlns:ns_1="http://relaxng.org/ns/compatibility/annotations/1.0" name="runInTransaction" ns_1:defaultValue="true">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="logicalFilePath">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+ </rng:define>
+
+ <!-- Attributes for constraints -->
+ <rng:define name="constraintsAttributes">
+  <rng:optional>
+   <rng:attribute name="nullable">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="primaryKey">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="primaryKeyName">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="primaryKeyTablespace">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="unique">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="uniqueConstraintName">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="references">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="foreignKeyName">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="deleteCascade">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="deferrable">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="initiallyDeferred">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+  </rng:optional>
+ </rng:define>
+
+ <rng:define name="column">
+  <rng:attribute name="name">
+   <rng:data type="string"/>
+  </rng:attribute>
+  <rng:optional>
+   <rng:attribute name="type">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="value">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="valueNumeric">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="valueBoolean">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="valueDate">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="valueComputed">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="defaultValue">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="defaultValueNumeric">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="defaultValueDate">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="defaultValueBoolean">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="defaultValueComputed">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="autoIncrement">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="startWith">
+    <rng:data type="long"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="incrementBy">
+    <rng:data type="long"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="remarks">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+ </rng:define>
+
+ <rng:define name="dropTableAttributes">
+  <rng:optional>
+   <rng:attribute name="schemaName">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:attribute name="tableName">
+   <rng:data type="string"/>
+  </rng:attribute>
+  <rng:optional>
+   <rng:attribute name="cascadeConstraints">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+  </rng:optional>
+ </rng:define>
+
+ <rng:define name="renameTableAttributes">
+  <rng:optional>
+   <rng:attribute name="schemaName">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:attribute name="oldTableName">
+   <rng:data type="string"/>
+  </rng:attribute>
+  <rng:attribute name="newTableName">
+   <rng:data type="string"/>
+  </rng:attribute>
+ </rng:define>
+
+ <rng:define name="renameViewAttributes">
+  <rng:optional>
+   <rng:attribute name="schemaName">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:attribute name="oldViewName">
+   <rng:data type="string"/>
+  </rng:attribute>
+  <rng:attribute name="newViewName">
+   <rng:data type="string"/>
+  </rng:attribute>
+ </rng:define>
+
+ <rng:define name="tableNameAttribute">
+  <rng:optional>
+   <rng:attribute name="schemaName">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:attribute name="tableName">
+   <rng:data type="string"/>
+  </rng:attribute>
+ </rng:define>
+
+ <rng:define name="renameColumnAttributes">
+  <rng:ref name="tableNameAttribute"/>
+  <rng:attribute name="oldColumnName">
+   <rng:data type="string"/>
+  </rng:attribute>
+  <rng:attribute name="newColumnName">
+   <rng:data type="string"/>
+  </rng:attribute>
+  <rng:optional>
+   <rng:attribute name="columnDataType">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+ </rng:define>
+
+ <rng:define name="dropColumnAttributes">
+  <rng:ref name="tableNameAttribute"/>
+  <rng:attribute name="columnName">
+   <rng:data type="string"/>
+  </rng:attribute>
+ </rng:define>
+
+ <rng:define name="sequenceAttributes">
+  <rng:optional>
+   <rng:attribute name="schemaName">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:attribute name="sequenceName">
+   <rng:data type="string"/>
+  </rng:attribute>
+  <rng:optional>
+   <rng:attribute name="startValue">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="incrementBy">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="maxValue">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="minValue">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="ordered">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+  </rng:optional>
+ </rng:define>
+
+ <rng:define name="indexName">
+  <rng:attribute name="indexName">
+   <rng:data type="string"/>
+  </rng:attribute>
+ </rng:define>
+
+ <rng:define name="createIndex">
+  <rng:ref name="tableNameAttribute"/>
+  <rng:ref name="indexName"/>
+  <rng:optional>
+   <rng:attribute name="associatedWith">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="unique">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="tablespace">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+ </rng:define>
+
+
+ <rng:start combine="choice">
+  <rng:ref name="addPrimaryKey"/>
+ </rng:start>
+ <rng:define name="addPrimaryKey">
+  <rng:element name="addPrimaryKey">
+
+   <rng:optional>
+    <rng:attribute name="schemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:attribute name="tableName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute name="columnNames">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:optional>
+    <rng:attribute name="constraintName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="tablespace">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="dropPrimaryKey"/>
+ </rng:start>
+ <rng:define name="dropPrimaryKey">
+  <rng:element name="dropPrimaryKey">
+
+   <rng:optional>
+    <rng:attribute name="schemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:attribute name="tableName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:optional>
+    <rng:attribute name="constraintName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="addUniqueConstraint"/>
+ </rng:start>
+ <rng:define name="addUniqueConstraint">
+  <rng:element name="addUniqueConstraint">
+
+   <rng:optional>
+    <rng:attribute name="schemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:attribute name="tableName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute name="columnNames">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:optional>
+    <rng:attribute name="constraintName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="tablespace">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="disabled">
+     <rng:ref name="booleanExp"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="deferrable">
+     <rng:ref name="booleanExp"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="initiallyDeferred">
+     <rng:ref name="booleanExp"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="dropUniqueConstraint"/>
+ </rng:start>
+ <rng:define name="dropUniqueConstraint">
+  <rng:element name="dropUniqueConstraint">
+
+   <rng:optional>
+    <rng:attribute name="schemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:attribute name="tableName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:optional>
+    <rng:attribute name="constraintName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="uniqueColumns">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="modifyDataType"/>
+ </rng:start>
+ <rng:define name="modifyDataType">
+  <rng:element name="modifyDataType">
+
+   <rng:optional>
+    <rng:attribute name="schemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:attribute name="tableName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute name="columnName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute name="newDataType">
+    <rng:data type="string"/>
+   </rng:attribute>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="addLookupTable"/>
+ </rng:start>
+ <rng:define name="addLookupTable">
+  <rng:element name="addLookupTable">
+
+   <rng:optional>
+    <rng:attribute name="existingTableSchemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:attribute name="existingTableName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute name="existingColumnName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:optional>
+    <rng:attribute name="newTableSchemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:attribute name="newTableName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute name="newColumnName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:optional>
+    <rng:attribute name="newColumnDataType">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="constraintName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="addAutoIncrement"/>
+ </rng:start>
+ <rng:define name="addAutoIncrement">
+  <rng:element name="addAutoIncrement">
+
+   <rng:optional>
+    <rng:attribute name="schemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:attribute name="tableName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute name="columnName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:optional>
+    <rng:attribute name="columnDataType">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="startWith">
+     <rng:data type="long"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="incrementBy">
+     <rng:data type="long"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="addDefaultValue"/>
+ </rng:start>
+ <rng:define name="addDefaultValue">
+  <rng:element name="addDefaultValue">
+
+   <rng:optional>
+    <rng:attribute name="schemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:attribute name="tableName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute name="columnName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:optional>
+    <rng:attribute name="columnDataType">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="defaultValue">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="defaultValueNumeric">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="defaultValueDate">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="defaultValueBoolean">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="defaultValueComputed">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="dropDefaultValue"/>
+ </rng:start>
+ <rng:define name="dropDefaultValue">
+  <rng:element name="dropDefaultValue">
+
+   <rng:optional>
+    <rng:attribute name="schemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:attribute name="tableName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute name="columnName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:optional>
+    <rng:attribute name="columnDataType">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="loadData"/>
+ </rng:start>
+ <rng:define name="loadData">
+  <rng:element name="loadData">
+
+
+   <rng:zeroOrMore>
+    <rng:element name="column">
+
+     <rng:optional>
+      <rng:attribute name="index">
+       <rng:ref name="integerExp"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="header">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="name">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="type">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="defaultValue">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="defaultValueNumeric">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="defaultValueDate">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="defaultValueBoolean">
+       <rng:ref name="booleanExp"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="defaultValueComputed">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+
+    </rng:element>
+   </rng:zeroOrMore>
+
+   <rng:optional>
+    <rng:attribute name="schemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:attribute name="tableName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:optional>
+    <rng:attribute name="file">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute xmlns:ns_1="http://relaxng.org/ns/compatibility/annotations/1.0" name="encoding" ns_1:defaultValue="UTF-8">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute xmlns:ns_1="http://relaxng.org/ns/compatibility/annotations/1.0" name="separator" ns_1:defaultValue=",">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute xmlns:ns_1="http://relaxng.org/ns/compatibility/annotations/1.0" name="quotchar" ns_1:defaultValue="&quot;">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="loadUpdateData"/>
+ </rng:start>
+ <rng:define name="loadUpdateData">
+  <rng:element name="loadUpdateData">
+
+
+   <rng:zeroOrMore>
+    <rng:element name="column">
+
+     <rng:optional>
+      <rng:attribute name="index">
+       <rng:ref name="integerExp"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="header">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="name">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="type">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="defaultValue">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="defaultValueNumeric">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="defaultValueDate">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="defaultValueBoolean">
+       <rng:ref name="booleanExp"/>
+      </rng:attribute>
+     </rng:optional>
+     <rng:optional>
+      <rng:attribute name="defaultValueComputed">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+
+    </rng:element>
+   </rng:zeroOrMore>
+
+   <rng:optional>
+    <rng:attribute name="schemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:attribute name="tableName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:optional>
+    <rng:attribute name="file">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute xmlns:ns_1="http://relaxng.org/ns/compatibility/annotations/1.0" name="encoding" ns_1:defaultValue="UTF-8">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:attribute name="primaryKey">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:optional>
+    <rng:attribute xmlns:ns_1="http://relaxng.org/ns/compatibility/annotations/1.0" name="separator" ns_1:defaultValue=",">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute xmlns:ns_1="http://relaxng.org/ns/compatibility/annotations/1.0" name="quotchar" ns_1:defaultValue="&quot;">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:define name="fkCascadeActionOptions">
+  <rng:choice>
+   <rng:value>CASCADE</rng:value>
+   <rng:value>SET NULL</rng:value>
+   <rng:value>SET DEFAULT</rng:value>
+   <rng:value>RESTRICT</rng:value>
+   <rng:value>NO ACTION</rng:value>
+  </rng:choice>
+ </rng:define>
+
+ <rng:define name="addForeignKeyConstraintAttrib">
+  <rng:optional>
+   <rng:attribute name="baseTableSchemaName">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:attribute name="baseTableName">
+   <rng:data type="string"/>
+  </rng:attribute>
+  <rng:attribute name="baseColumnNames">
+   <rng:data type="string"/>
+  </rng:attribute>
+  <rng:attribute name="constraintName">
+   <rng:data type="string"/>
+  </rng:attribute>
+  <rng:optional>
+   <rng:attribute name="referencedTableSchemaName">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:attribute name="referencedTableName">
+   <rng:data type="string"/>
+  </rng:attribute>
+  <rng:attribute name="referencedColumnNames">
+   <rng:data type="string"/>
+  </rng:attribute>
+  <rng:optional>
+   <rng:attribute name="deferrable">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="initiallyDeferred">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="deleteCascade">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="onDelete">
+    <rng:ref name="fkCascadeActionOptions"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="onUpdate">
+    <rng:ref name="fkCascadeActionOptions"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="referencesUniqueColumn">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+  </rng:optional>
+ </rng:define>
+
+ <rng:define name="addNotNullConstraintAttrib">
+  <rng:optional>
+   <rng:attribute name="schemaName">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:attribute name="tableName">
+   <rng:data type="string"/>
+  </rng:attribute>
+  <rng:attribute name="columnName">
+   <rng:data type="string"/>
+  </rng:attribute>
+  <rng:optional>
+   <rng:attribute name="defaultNullValue">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:optional>
+   <rng:attribute name="columnDataType">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+ </rng:define>
+
+
+ <rng:start combine="choice">
+  <rng:ref name="addNotNullConstraint"/>
+ </rng:start>
+ <rng:define name="addNotNullConstraint">
+  <rng:element name="addNotNullConstraint">
+
+   <rng:ref name="addNotNullConstraintAttrib"/>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="addForeignKeyConstraint"/>
+ </rng:start>
+ <rng:define name="addForeignKeyConstraint">
+  <rng:element name="addForeignKeyConstraint">
+
+   <rng:ref name="addForeignKeyConstraintAttrib"/>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:define name="dbmsAttrib">
+  <rng:attribute name="type">
+   <rng:data type="string"/>
+  </rng:attribute>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="dbms"/>
+ </rng:start>
+ <rng:define name="dbms">
+  <rng:element name="dbms">
+
+   <rng:ref name="dbmsAttrib"/>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="changeSetExecuted"/>
+ </rng:start>
+ <rng:define name="changeSetExecuted">
+  <rng:element name="changeSetExecuted">
+
+   <rng:attribute name="id">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute name="author">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute name="changeLogFile">
+    <rng:data type="string"/>
+   </rng:attribute>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="tableExists"/>
+ </rng:start>
+ <rng:define name="tableExists">
+  <rng:element name="tableExists">
+
+   <rng:optional>
+    <rng:attribute name="schemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:attribute name="tableName">
+    <rng:data type="string"/>
+   </rng:attribute>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="columnExists"/>
+ </rng:start>
+ <rng:define name="columnExists">
+  <rng:element name="columnExists">
+
+   <rng:optional>
+    <rng:attribute name="schemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:attribute name="tableName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute name="columnName">
+    <rng:data type="string"/>
+   </rng:attribute>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="sequenceExists"/>
+ </rng:start>
+ <rng:define name="sequenceExists">
+  <rng:element name="sequenceExists">
+
+   <rng:optional>
+    <rng:attribute name="schemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:attribute name="sequenceName">
+    <rng:data type="string"/>
+   </rng:attribute>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="foreignKeyConstraintExists"/>
+ </rng:start>
+ <rng:define name="foreignKeyConstraintExists">
+  <rng:element name="foreignKeyConstraintExists">
+
+   <rng:optional>
+    <rng:attribute name="schemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="foreignKeyTableName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:attribute name="foreignKeyName">
+    <rng:data type="string"/>
+   </rng:attribute>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="indexExists"/>
+ </rng:start>
+ <rng:define name="indexExists">
+  <rng:element name="indexExists">
+
+   <rng:optional>
+    <rng:attribute name="schemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="indexName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="tableName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="columnNames">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="changeLogPropertyDefined"/>
+ </rng:start>
+ <rng:define name="changeLogPropertyDefined">
+  <rng:element name="changeLogPropertyDefined">
+
+   <rng:attribute name="property">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:optional>
+    <rng:attribute name="value">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="primaryKeyExists"/>
+ </rng:start>
+ <rng:define name="primaryKeyExists">
+  <rng:element name="primaryKeyExists">
+
+   <rng:optional>
+    <rng:attribute name="schemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="primaryKeyName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="tableName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="viewExists"/>
+ </rng:start>
+ <rng:define name="viewExists">
+  <rng:element name="viewExists">
+
+   <rng:optional>
+    <rng:attribute name="schemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:attribute name="viewName">
+    <rng:data type="string"/>
+   </rng:attribute>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="sqlCheck"/>
+ </rng:start>
+ <rng:define name="sqlCheck">
+  <rng:element name="sqlCheck">
+
+   <rng:attribute name="expectedResult">
+    <rng:data type="string"/>
+   </rng:attribute>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="customPrecondition"/>
+ </rng:start>
+ <rng:define name="customPrecondition">
+  <rng:element name="customPrecondition">
+
+
+   <rng:zeroOrMore>
+    <rng:element name="param">
+
+     <rng:attribute name="name">
+      <rng:data type="string"/>
+     </rng:attribute>
+     <rng:attribute name="value">
+      <rng:data type="string"/>
+     </rng:attribute>
+
+    </rng:element>
+   </rng:zeroOrMore>
+
+   <rng:attribute name="className">
+    <rng:data type="string"/>
+   </rng:attribute>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="and"/>
+ </rng:start>
+ <rng:define name="and">
+  <rng:element name="and">
+
+   <rng:choice>
+    <rng:oneOrMore>
+     <rng:ref name="PreConditionChildren"/>
+    </rng:oneOrMore>
+   </rng:choice>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="or"/>
+ </rng:start>
+ <rng:define name="or">
+  <rng:element name="or">
+
+   <rng:choice>
+    <rng:oneOrMore>
+     <rng:ref name="PreConditionChildren"/>
+    </rng:oneOrMore>
+   </rng:choice>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="not"/>
+ </rng:start>
+ <rng:define name="not">
+  <rng:element name="not">
+
+   <rng:choice>
+    <rng:oneOrMore>
+     <rng:ref name="PreConditionChildren"/>
+    </rng:oneOrMore>
+   </rng:choice>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:define name="runningAsAttrib">
+  <rng:attribute name="username">
+   <rng:data type="string"/>
+  </rng:attribute>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="runningAs"/>
+ </rng:start>
+ <rng:define name="runningAs">
+  <rng:element name="runningAs">
+
+   <rng:ref name="runningAsAttrib"/>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:define name="dropForeignKeyConstraintAttrib">
+  <rng:optional>
+   <rng:attribute name="baseTableSchemaName">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:attribute name="baseTableName">
+   <rng:data type="string"/>
+  </rng:attribute>
+  <rng:optional>
+   <rng:attribute name="constraintName">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="dropForeignKeyConstraint"/>
+ </rng:start>
+ <rng:define name="dropForeignKeyConstraint">
+  <rng:element name="dropForeignKeyConstraint">
+
+   <rng:ref name="dropForeignKeyConstraintAttrib"/>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:define name="dropAllForeignKeyConstraintsAttrib">
+  <rng:optional>
+   <rng:attribute name="baseTableSchemaName">
+    <rng:data type="string"/>
+   </rng:attribute>
+  </rng:optional>
+  <rng:attribute name="baseTableName">
+   <rng:data type="string"/>
+  </rng:attribute>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="dropAllForeignKeyConstraints"/>
+ </rng:start>
+ <rng:define name="dropAllForeignKeyConstraints">
+  <rng:element name="dropAllForeignKeyConstraints">
+
+   <rng:ref name="dropAllForeignKeyConstraintsAttrib"/>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="dropNotNullConstraint"/>
+ </rng:start>
+ <rng:define name="dropNotNullConstraint">
+  <rng:element name="dropNotNullConstraint">
+
+   <rng:optional>
+    <rng:attribute name="schemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:attribute name="tableName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute name="columnName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:optional>
+    <rng:attribute name="columnDataType">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+
+ <rng:start combine="choice">
+  <rng:ref name="constraints"/>
+ </rng:start>
+ <rng:define name="constraints">
+  <rng:element name="constraints">
+
+   <rng:ref name="constraintsAttributes"/>
+
+  </rng:element>
+ </rng:define>
+
+
+ <rng:start combine="choice">
+  <rng:ref name="column"/>
+ </rng:start>
+ <rng:define name="column">
+  <rng:element name="column">
+
+
+   <rng:optional>
+    <rng:ref name="constraints"/>
+   </rng:optional>
+
+   <rng:ref name="column"/>
+
+  </rng:element>
+ </rng:define>
+
+ <!-- Children for createTable -->
+ <rng:start combine="choice">
+  <rng:ref name="createTable"/>
+ </rng:start>
+ <rng:define name="createTable">
+  <rng:element name="createTable">
+
+
+   <rng:oneOrMore>
+    <rng:ref name="column"/>
+   </rng:oneOrMore>
+
+   <rng:ref name="tableNameAttribute"/>
+   <rng:optional>
+    <rng:attribute name="tablespace">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="remarks">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <!-- Children for createView -->
+ <rng:start combine="choice">
+  <rng:ref name="createView"/>
+ </rng:start>
+ <rng:define name="createView">
+  <rng:element name="createView">
+
+
+
+   <rng:attribute name="schemaName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute name="viewName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute name="replaceIfExists">
+    <rng:ref name="booleanExp"/>
+   </rng:attribute>
+
+
+
+  </rng:element>
+ </rng:define>
+
+ <!-- Children for insert -->
+ <rng:start combine="choice">
+  <rng:ref name="insert"/>
+ </rng:start>
+ <rng:define name="insert">
+  <rng:element name="insert">
+
+
+   <rng:oneOrMore>
+    <rng:ref name="column"/>
+   </rng:oneOrMore>
+
+   <rng:ref name="tableNameAttribute"/>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="update"/>
+ </rng:start>
+ <rng:define name="update">
+  <rng:element name="update">
+
+
+   <rng:oneOrMore>
+    <rng:ref name="column"/>
+   </rng:oneOrMore>
+   <rng:optional>
+    <rng:element name="where"/>
+   </rng:optional>
+
+   <rng:ref name="tableNameAttribute"/>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="delete"/>
+ </rng:start>
+ <rng:define name="delete">
+  <rng:element name="delete">
+
+
+   <rng:optional>
+    <rng:element name="where"/>
+   </rng:optional>
+
+   <rng:ref name="tableNameAttribute"/>
+
+  </rng:element>
+ </rng:define>
+
+ <!-- Children for addColum -->
+ <rng:start combine="choice">
+  <rng:ref name="addColumn"/>
+ </rng:start>
+ <rng:define name="addColumn">
+  <rng:element name="addColumn">
+
+
+   <rng:oneOrMore>
+    <rng:ref name="column"/>
+   </rng:oneOrMore>
+
+   <rng:ref name="tableNameAttribute"/>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="rollback"/>
+ </rng:start>
+ <rng:define name="rollback">
+  <rng:element name="rollback">
+
+   <rng:choice>
+    <rng:zeroOrMore>
+     <rng:ref name="changeSetChildren"/>
+    </rng:zeroOrMore>
+   </rng:choice>
+   <rng:optional>
+    <rng:attribute name="changeSetPath">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="changeSetAuthor">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="changeSetId">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <!-- comment  -->
+ <rng:start combine="choice">
+  <rng:ref name="comment"/>
+ </rng:start>
+ <rng:define name="comment">
+  <rng:element name="comment">
+   <rng:data type="string"/>
+  </rng:element>
+ </rng:define>
+
+ <!-- sql -->
+ <rng:start combine="choice">
+  <rng:ref name="sql"/>
+ </rng:start>
+ <rng:define name="sql">
+  <rng:element name="sql">
+
+
+   <rng:optional>
+    <rng:ref name="comment"/>
+   </rng:optional>
+
+   <rng:optional>
+    <rng:attribute name="stripComments">
+     <rng:ref name="booleanExp"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="splitStatements">
+     <rng:ref name="booleanExp"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="endDelimiter">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="createProcedure"/>
+ </rng:start>
+ <rng:define name="createProcedure">
+  <rng:element name="createProcedure">
+
+
+   <rng:optional>
+    <rng:ref name="comment"/>
+   </rng:optional>
+
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="executeCommand"/>
+ </rng:start>
+ <rng:define name="executeCommand">
+  <rng:element name="executeCommand">
+
+
+   <rng:zeroOrMore>
+    <rng:element name="arg">
+
+     <rng:attribute name="value">
+      <rng:data type="string"/>
+     </rng:attribute>
+
+    </rng:element>
+   </rng:zeroOrMore>
+
+   <rng:attribute name="executable">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:optional>
+    <rng:attribute name="os">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="sqlFile"/>
+ </rng:start>
+ <rng:define name="sqlFile">
+  <rng:element name="sqlFile">
+
+   <rng:attribute name="path">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:optional>
+    <rng:attribute name="stripComments">
+     <rng:ref name="booleanExp"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="splitStatements">
+     <rng:ref name="booleanExp"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute xmlns:ns_1="http://relaxng.org/ns/compatibility/annotations/1.0" name="encoding" ns_1:defaultValue="UTF-8">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="endDelimiter">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+   <rng:optional>
+    <rng:attribute name="relativeToChangelogFile">
+     <rng:ref name="booleanExp"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="tagDatabase"/>
+ </rng:start>
+ <rng:define name="tagDatabase">
+  <rng:element name="tagDatabase">
+
+   <rng:attribute name="tag">
+    <rng:data type="string"/>
+   </rng:attribute>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="stop"/>
+ </rng:start>
+ <rng:define name="stop">
+  <rng:element name="stop">
+
+  </rng:element>
+ </rng:define>
+
+ <!-- renameTable -->
+ <rng:start combine="choice">
+  <rng:ref name="renameTable"/>
+ </rng:start>
+ <rng:define name="renameTable">
+  <rng:element name="renameTable">
+
+   <rng:ref name="renameTableAttributes"/>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="renameView"/>
+ </rng:start>
+ <rng:define name="renameView">
+  <rng:element name="renameView">
+
+   <rng:ref name="renameViewAttributes"/>
+
+  </rng:element>
+ </rng:define>
+
+ <!-- dropTable -->
+ <rng:start combine="choice">
+  <rng:ref name="dropTable"/>
+ </rng:start>
+ <rng:define name="dropTable">
+  <rng:element name="dropTable">
+
+   <rng:ref name="dropTableAttributes"/>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="dropView"/>
+ </rng:start>
+ <rng:define name="dropView">
+  <rng:element name="dropView">
+
+   <rng:attribute name="viewName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:optional>
+    <rng:attribute name="schemaName">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <!-- renameColumn -->
+ <rng:start combine="choice">
+  <rng:ref name="renameColumn"/>
+ </rng:start>
+ <rng:define name="renameColumn">
+  <rng:element name="renameColumn">
+
+   <rng:ref name="renameColumnAttributes"/>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="dropColumn"/>
+ </rng:start>
+ <rng:define name="dropColumn">
+  <rng:element name="dropColumn">
+
+   <rng:ref name="dropColumnAttributes"/>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="mergeColumns"/>
+ </rng:start>
+ <rng:define name="mergeColumns">
+  <rng:element name="mergeColumns">
+
+   <rng:ref name="tableNameAttribute"/>
+   <rng:attribute name="column1Name">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute name="joinString">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute name="column2Name">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute name="finalColumnName">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute name="finalColumnType">
+    <rng:data type="string"/>
+   </rng:attribute>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:define name="whereClause">
+
+  <rng:zeroOrMore>
+   <rng:element name="whereClause">
+    <rng:data type="string"/>
+   </rng:element>
+  </rng:zeroOrMore>
+
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="createSequence"/>
+ </rng:start>
+ <rng:define name="createSequence">
+  <rng:element name="createSequence">
+
+   <rng:ref name="sequenceAttributes"/>
+   <rng:optional>
+    <rng:attribute name="cycle">
+     <rng:ref name="booleanExp"/>
+     <a:documentation>
+
+      true for a cycling sequence, false for a non-cycling sequence.
+      Default is false.
+
+     </a:documentation>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="alterSequence"/>
+ </rng:start>
+ <rng:define name="alterSequence">
+  <rng:element name="alterSequence">
+
+   <rng:ref name="sequenceAttributes"/>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="dropSequence"/>
+ </rng:start>
+ <rng:define name="dropSequence">
+  <rng:element name="dropSequence">
+
+   <rng:ref name="sequenceAttributes"/>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="createIndex"/>
+ </rng:start>
+ <rng:define name="createIndex">
+  <rng:element name="createIndex">
+
+
+   <rng:oneOrMore>
+    <rng:ref name="column"/>
+   </rng:oneOrMore>
+
+   <rng:ref name="createIndex"/>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="dropIndex"/>
+ </rng:start>
+ <rng:define name="dropIndex">
+  <rng:element name="dropIndex">
+
+   <rng:ref name="tableNameAttribute"/>
+   <rng:ref name="indexName"/>
+   <rng:optional>
+    <rng:attribute name="associatedWith">
+     <rng:data type="string"/>
+    </rng:attribute>
+   </rng:optional>
+
+  </rng:element>
+ </rng:define>
+
+ <rng:start combine="choice">
+  <rng:ref name="customChange"/>
+ </rng:start>
+ <rng:define name="customChange">
+  <rng:element name="customChange">
+
+
+   <rng:zeroOrMore>
+    <rng:element name="param">
+
+     <rng:attribute name="name">
+      <rng:data type="string"/>
+     </rng:attribute>
+     <rng:optional>
+      <rng:attribute name="value">
+       <rng:data type="string"/>
+      </rng:attribute>
+     </rng:optional>
+
+    </rng:element>
+   </rng:zeroOrMore>
+
+   <rng:attribute name="class">
+    <rng:data type="string"/>
+   </rng:attribute>
+   <rng:attribute>
+    <rng:anyName/>
+    <rng:text/>
+   </rng:attribute>
+
+  </rng:element>
+ </rng:define>
+
+
+ <!-- Children for changeSet -->
+ <rng:define name="changeSetChildren">
+  <rng:choice>
+   <rng:ref name="comment"/>
+   <rng:oneOrMore>
+    <rng:ref name="createTable"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="dropTable"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="createView"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="renameView"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="dropView"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="insert"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="addColumn"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="sql"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="createProcedure"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="sqlFile"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="renameTable"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="renameColumn"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="dropColumn"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="mergeColumns"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="modifyDataType"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="createSequence"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="alterSequence"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="dropSequence"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="createIndex"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="dropIndex"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="addNotNullConstraint"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="dropNotNullConstraint"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="addForeignKeyConstraint"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="dropForeignKeyConstraint"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="dropAllForeignKeyConstraints"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="addPrimaryKey"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="dropPrimaryKey"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="addLookupTable"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="addAutoIncrement"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="addDefaultValue"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="dropDefaultValue"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="addUniqueConstraint"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="dropUniqueConstraint"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="customChange"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="update"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="delete"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="loadData"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="loadUpdateData"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="executeCommand"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="stop"/>
+   </rng:oneOrMore>
+   <rng:ref name="rollback"/>
+   <rng:zeroOrMore>
+    <rng:element>
+     <rng:anyName/>
+     <rng:text/>
+    </rng:element>
+   </rng:zeroOrMore>
+  </rng:choice>
+ </rng:define>
+
+ <!-- Children for Precondition -->
+ <rng:define name="PreConditionChildren">
+
+  <rng:choice>
+   <rng:oneOrMore>
+    <rng:ref name="and"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="or"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="not"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="dbms"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="runningAs"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="changeSetExecuted"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="tableExists"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="columnExists"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="sequenceExists"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="foreignKeyConstraintExists"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="indexExists"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="primaryKeyExists"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="viewExists"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="sqlCheck"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="changeLogPropertyDefined"/>
+   </rng:oneOrMore>
+   <rng:oneOrMore>
+    <rng:ref name="customPrecondition"/>
+   </rng:oneOrMore>
+  </rng:choice>
+
+
+ </rng:define>
+</rng:grammar>
